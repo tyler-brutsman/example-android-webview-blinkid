@@ -9,7 +9,7 @@ This repo shows a basic POC for running Microblink solutions (BlinkID in this ca
 - Makes sure that scanning and extraction work
 
 ## Gotchas
-The most important thing to note is that one has to request the proper permissions (in [AndroidManifest.xml file](https://github.com/Hitman666/MicroblinkWebViewsTesting/blob/main/app/src/main/AndroidManifest.xml):
+The most important thing to note is that one has to request the proper permissions (in [AndroidManifest.xml file](https://github.com/tyler-brutsman/example-android-webview-blinkid/blob/main/app/src/main/AndroidManifest.xml):
 
 ```
 <uses-permission android:name="android.permission.INTERNET" />
@@ -20,7 +20,7 @@ The most important thing to note is that one has to request the proper permissio
 <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 ```
 
-Then, along with the usual permission handling on the Android level (see [here](https://github.com/Hitman666/MicroblinkWebViewsTesting/blob/main/app/src/main/java/com/example/webviewstest/MainActivity.kt#L132) catch is that the same permissions need to be requested within the Webview object (code in [MainActivity.kt](http://MainActivity.kt):
+Then, along with the usual permission handling on the Android level (see [here](https://github.com/tyler-brutsman/example-android-webview-blinkid/blob/main/app/src/main/java/com/example/webviewstest/MainActivity.kt#L150) catch is that the same permissions need to be requested within the Webview object (code in [MainActivity.kt](https://github.com/tyler-brutsman/example-android-webview-blinkid/blob/main/app/src/main/java/com/example/webviewstest/MainActivity.kt):
 
 ```
 if(request.resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
@@ -38,7 +38,7 @@ if(request.resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CA
 }
 ```
 
-There’s also the ‘else’ part of that branch that checks for the `android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE` permission, but you can check that in the code [here](https://github.com/Hitman666/MicroblinkWebViewsTesting/blob/main/app/src/main/java/com/example/webviewstest/MainActivity.kt#L111C59-L111C114).
+There’s also the ‘else’ part of that branch that checks for the `android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE` permission, but you can check that in the code [here](https://github.com/tyler-brutsman/example-android-webview-blinkid/blob/main/app/src/main/java/com/example/webviewstest/MainActivity.kt#L129).
 
 ## Conclusion
 Hope this helps, and if you'll have any additional questions, please [reach out](https://microblink.com/contact-us/) to us and we'll be happy to help.
