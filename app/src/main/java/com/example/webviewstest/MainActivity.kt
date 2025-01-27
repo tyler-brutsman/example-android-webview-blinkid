@@ -144,7 +144,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Load the desired URL
-        webView.loadUrl("https://demo.microblink.com/blinkid")
+        webView.loadUrl("https://blinkid-webview-test.netlify.app/")
     }
 
     override fun onRequestPermissionsResult(
