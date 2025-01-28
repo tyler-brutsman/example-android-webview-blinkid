@@ -7,19 +7,22 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.View
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import android.widget.Button
+
 
 class MainActivity : AppCompatActivity() {
     private val CAMERA_PERMISSION_REQUEST_CODE = 100
@@ -65,30 +68,31 @@ class MainActivity : AppCompatActivity() {
         val permissionsToRequest = mutableListOf<String>()
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+            != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.RECORD_AUDIO)
         }
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
+            != PackageManager.PERMISSION_GRANTED) {
             permissionsToRequest.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
         }
 
         if (permissionsToRequest.isNotEmpty()) {
+            // Request missing permissions
             ActivityCompat.requestPermissions(
                 this,
                 permissionsToRequest.toTypedArray(),
                 AUDIO_PERMISSION_REQUEST_CODE
             )
         } else {
-            // If all permissions are granted, show the WebView
+            // All necessary permissions are granted, set up WebView
             setupWebView()
         }
     }
 
+    // Set up WebView to load the URL
     private fun setupWebView() {
+        // Find WebView by ID
         // Find WebView and make it visible
         val webView: WebView = findViewById(R.id.webView)
         val startVerificationButton: Button = findViewById(R.id.startVerificationButton)
@@ -96,57 +100,47 @@ class MainActivity : AppCompatActivity() {
         // Hide the button once WebView is shown
         startVerificationButton.visibility = View.GONE
 
+
+        Log.i("WebView", "Setting up webview")
+
         // Make WebView visible and full-screen
         webView.visibility = View.VISIBLE
 
-        // Enable JavaScript and set WebViewClient
+        // Enable JavaScript
         val webSettings: WebSettings = webView.settings
         webSettings.javaScriptEnabled = true
+        webSettings.mediaPlaybackRequiresUserGesture = false
+        webSettings.domStorageEnabled = true
+
+        // Set WebViewClient to handle navigation
         webView.webViewClient = WebViewClient()
 
-        // Enable debugging for WebView
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
 
         // Set WebChromeClient to handle permissions
         webView.webChromeClient = object : WebChromeClient() {
-            override fun onPermissionRequest(request: android.webkit.PermissionRequest?) {
+            override fun onPermissionRequest(request: PermissionRequest?) {
                 // Handle permission requests for camera and microphone
                 if (request != null) {
-                    if (request.resources.contains(android.webkit.PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-                        if (ContextCompat.checkSelfPermission(
-                                this@MainActivity, Manifest.permission.CAMERA
-                            ) == PackageManager.PERMISSION_GRANTED) {
-                            request.grant(request.resources)
-                        } else {
-                            ActivityCompat.requestPermissions(
-                                this@MainActivity,
-                                arrayOf(Manifest.permission.CAMERA),
-                                CAMERA_PERMISSION_REQUEST_CODE
-                            )
-                        }
-                    } else if (request.resources.contains(android.webkit.PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
-                        if (ContextCompat.checkSelfPermission(
-                                this@MainActivity, Manifest.permission.RECORD_AUDIO
-                            ) == PackageManager.PERMISSION_GRANTED) {
-                            request.grant(request.resources)
-                        } else {
-                            ActivityCompat.requestPermissions(
-                                this@MainActivity,
-                                arrayOf(Manifest.permission.RECORD_AUDIO),
-                                AUDIO_PERMISSION_REQUEST_CODE
-                            )
-                        }
+                    if (request.resources.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) ||
+                        request.resources.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE) ) {
+                        Log.i("Permissions", "Granting camera/audio permission")
+                        request.grant(request.resources)
                     }
                 }
             }
+
+            override fun onPermissionRequestCanceled(request: PermissionRequest?) {
+                super.onPermissionRequestCanceled(request)
+            }
         }
 
-        // Load the desired URL
         webView.loadUrl("https://blinkid-webview-test.netlify.app/")
     }
 
+    // Handle the result of the permission request
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -178,6 +172,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
 
     private fun showPermissionDialog(permission: String, requestCode: Int) {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this, permission)) {
