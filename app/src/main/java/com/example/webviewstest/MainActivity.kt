@@ -137,7 +137,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        webView.loadUrl("https://blinkid-webview-test.netlify.app/")
+        // Add URL for your hosted webpage
+        webView.loadUrl("")
     }
 
     // Handle the result of the permission request
